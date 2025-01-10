@@ -65,10 +65,10 @@ func process(port string, protocol string) {
 				//fmt.Println("quit2")
 				break
 			}
-			time.Sleep(1 * time.Second)
+			//time.Sleep(1 * time.Second)
 			//fmt.Println(port)
 		}
-		time.Sleep(1 * time.Second)
+		//time.Sleep(1 * time.Second)
 		//fmt.Println("hahah")
 		if quitRoutine {
 			//fmt.Println("quit0")
@@ -112,7 +112,7 @@ func Server_main(port string) {
 			default:
 				if strings.HasPrefix(recvStr, "port:") { //port:tcp:1050
 					quitRoutine = true
-					time.Sleep(0 * time.Second)
+					time.Sleep(50 * time.Millisecond)
 					quitRoutine = false
 					str := strings.Split(recvStr, ":")
 					fmt.Println(str[1])
