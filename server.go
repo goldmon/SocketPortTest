@@ -36,7 +36,7 @@ func main() {
 // 处理函数
 func process(port string, protocol string) {
 	listen, err := net.Listen(protocol, "0.0.0.0:"+port)
-	fmt.Println("开始监听端口：" + port)
+	//fmt.Println("开始监听端口：" + port)
 	if err != nil {
 		//fmt.Println("Listen() failed, err: ", err)
 		return
@@ -115,7 +115,7 @@ func Server_main(port string) {
 					time.Sleep(50 * time.Millisecond)
 					quitRoutine = false
 					str := strings.Split(recvStr, ":")
-					fmt.Println(str[1])
+					//fmt.Println(str[1])
 					//conn.Write([]byte(str[1])) // 发送数据
 					conn.Write([]byte("OK")) // 发送数据
 					go process(str[2], str[1])

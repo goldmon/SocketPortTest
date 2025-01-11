@@ -92,7 +92,11 @@ func Client_main(port string, ipO string) {
         for _, value := range arra {
                 fmt.Print("协议：")
                 fmt.Print(value)
+                fmt.Println("")
                 for i := 10; i <= 65535; i++ {
+                        if (i == 80 || i==443 || i == 3306 || i== 9090 || i == 61022) {
+                                continue
+                        }
                         //conn.Write([]byte("close"))
                         //time.Sleep(1 * time.Second)
                         _, err := conn.Write([]byte("port:" + value + ":" + strconv.Itoa(i))) // 发送数据
@@ -113,8 +117,6 @@ func Client_main(port string, ipO string) {
                                         break
                                 }
                         }
-                        fmt.Print("，端口：")
-                        fmt.Print(i)
                         var result bool
                         var usedTime time.Duration
                         if portOpen {
@@ -124,13 +126,18 @@ func Client_main(port string, ipO string) {
                                 case "udp":
                                         result, usedTime = checkUDPPort(ip+strconv.Itoa(i), 2*time.Second)
                                 }
-                                fmt.Print("，结果：=====>")
-                                fmt.Print(result)
-                                fmt.Print("，时间：")
-                                fmt.Print(usedTime)
-                                fmt.Println("")
+                                if result {
+                                        fmt.Print("端口：")
+                                        fmt.Print(i)
+                                        fmt.Print("，结果：=====>")
+                                        fmt.Print(result)
+                                        fmt.Print("，时间：")
+                                        fmt.Print(usedTime)
+                                        fmt.Println("")
+                                }
                         }
 
                 }
         }
 }
+
