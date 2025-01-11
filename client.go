@@ -50,6 +50,8 @@ func checkTCPPort(address string, timeout time.Duration) (bool, time.Duration) {
         if err != nil {
                 // fmt.Println(err)
                 return false, time.Since(start)
+        }else{
+                conn.Write([]byte("quit")) // 发送数据
         }
         conn.Close()
         return true, time.Since(start)
@@ -94,6 +96,7 @@ func Client_main(port string, ipO string) {
                 fmt.Print(value)
                 fmt.Println("")
                 for i := 10; i <= 65535; i++ {
+                        fmt.Printf("\r %d",i)
                         if (i == 80 || i==443 || i == 3306 || i== 9090 || i == 61022) {
                                 continue
                         }
@@ -127,6 +130,7 @@ func Client_main(port string, ipO string) {
                                         result, usedTime = checkUDPPort(ip+strconv.Itoa(i), 2*time.Second)
                                 }
                                 if result {
+                                        fmt.Println("")
                                         fmt.Print("端口：")
                                         fmt.Print(i)
                                         fmt.Print("，结果：=====>")

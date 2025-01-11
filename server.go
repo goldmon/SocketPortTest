@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"strconv"
 	"time"
 )
 
@@ -41,6 +42,7 @@ func process(port string, protocol string) {
 		//fmt.Println("Listen() failed, err: ", err)
 		return
 	}
+	defer listen.Close()
 	for {
 		conn, err := listen.Accept() // 监听客户端的连接请求
 		if err != nil {
@@ -52,9 +54,15 @@ func process(port string, protocol string) {
 		for {
 			reader := bufio.NewReader(conn)
 			var buf [128]byte
-			_, err := reader.Read(buf[:]) // 读取数据
+			n, err := reader.Read(buf[:]) // 读取数据
 			if err != nil {
 				//fmt.Println("read from client failed, err: ", err)
+				break
+			}
+			recvStr := string(buf[:n])
+			if recvStr == "quit" {
+				//fmt.Println("read from client failed, err: ", err)
+				quitRoutine = true
 				break
 			}
 			/**recvStr := string(buf[:n])
@@ -68,6 +76,7 @@ func process(port string, protocol string) {
 			//time.Sleep(1 * time.Second)
 			//fmt.Println(port)
 		}
+		conn.Close()
 		//time.Sleep(1 * time.Second)
 		//fmt.Println("hahah")
 		if quitRoutine {
@@ -78,6 +87,17 @@ func process(port string, protocol string) {
 	//fmt.Println("quit_all")
 	listen.Close()
 }
+func closePort(port string, protocol string) {
+	p1, err := strconv.Atoi(port)
+	p2 := p1-1
+	p3 := strconv.Itoa(p2)
+	conn, err := net.DialTimeout(protocol, "127.0.0.1:"+p3, 2*time.Second)
+	if err == nil {
+		conn.Write([]byte("quit")) // 发送数据
+		conn.Close()
+	}
+}
+
 func Server_main(port string) {
 	listen, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
@@ -119,6 +139,7 @@ func Server_main(port string) {
 					//conn.Write([]byte(str[1])) // 发送数据
 					conn.Write([]byte("OK")) // 发送数据
 					go process(str[2], str[1])
+					go closePort(str[2], str[1])
 				}
 			}
 
