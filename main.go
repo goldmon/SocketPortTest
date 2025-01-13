@@ -27,4 +27,3 @@ func main() {
 		fmt.Println("请输入参数:server/client 端口 IP(服务端忽略)")
 	}
 }
-

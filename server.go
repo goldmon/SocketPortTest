@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,8 +35,8 @@ func main() {
 */
 // TCP Server端测试
 // 处理函数
-func process(port string, protocol string) {
-	listen, err := net.Listen(protocol, "0.0.0.0:"+port)
+func processTCP(port string) {
+	listen, err := net.Listen("tcp", "0.0.0.0:"+port)
 	//fmt.Println("开始监听端口：" + port)
 	if err != nil {
 		//fmt.Println("Listen() failed, err: ", err)
@@ -89,13 +89,53 @@ func process(port string, protocol string) {
 }
 func closePort(port string, protocol string) {
 	p1, err := strconv.Atoi(port)
-	p2 := p1-1
+	p2 := p1 - 1
 	p3 := strconv.Itoa(p2)
 	conn, err := net.DialTimeout(protocol, "127.0.0.1:"+p3, 2*time.Second)
 	if err == nil {
 		conn.Write([]byte("quit")) // 发送数据
 		conn.Close()
 	}
+}
+func processUDP(port string) {
+	porti, _ := strconv.Atoi(port)
+	// create udp server
+	listen, err := net.ListenUDP("udp", &net.UDPAddr{
+		IP:   net.IPv4(0, 0, 0, 0),
+		Port: porti,
+	})
+	if err != nil {
+		fmt.Printf("listem failed, err: %v\n", err)
+		return
+	}
+
+	defer listen.Close()
+	for {
+		var buf [1024]byte
+		n, _, err := listen.ReadFromUDP(buf[:])
+		if err != nil {
+			fmt.Printf("read data failed, err: %v\n", err)
+			return
+		}
+		recvStr := string(buf[:n])
+
+		if recvStr == "quit" {
+			//fmt.Println("read from client failed, err: ", err)
+			quitRoutine = true
+			break
+		} else {
+			fmt.Println("客户端: ", recvStr)
+		}
+		/**recvStr := string(buf[:n])
+		if len(recvStr) > 0 {
+			fmt.Println("protocol:" + protocol + ",Port:" + port + "    " + recvStr)
+		}*/
+		if quitRoutine {
+			//fmt.Println("quit2")
+			break
+		}
+	}
+	listen.Close()
 }
 
 func Server_main(port string) {
@@ -138,7 +178,11 @@ func Server_main(port string) {
 					//fmt.Println(str[1])
 					//conn.Write([]byte(str[1])) // 发送数据
 					conn.Write([]byte("OK")) // 发送数据
-					go process(str[2], str[1])
+					if str[1] == "tcp" {
+						go processTCP(str[2])
+					} else {
+						go processUDP(str[2])
+					}
 					go closePort(str[2], str[1])
 				}
 			}
